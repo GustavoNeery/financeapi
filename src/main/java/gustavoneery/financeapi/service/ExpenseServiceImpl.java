@@ -1,12 +1,15 @@
 package gustavoneery.financeapi.service;
 
 import gustavoneery.financeapi.dto.ExpenseDto;
+import gustavoneery.financeapi.dto.ExpenseResponseDto;
+import gustavoneery.financeapi.dto.ExpenseResponseWithIdDto;
 import gustavoneery.financeapi.model.Expense;
 import gustavoneery.financeapi.repository.ExpenseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -26,5 +29,29 @@ public class ExpenseServiceImpl implements ExpenseService{
         expenseRepository.save(expense);
 
         return expense.getId();
+    }
+
+    public List<ExpenseResponseWithIdDto> findAllWithId(){
+        return expenseRepository.findAll()
+                .stream()
+                .map(expense -> new ExpenseResponseWithIdDto(expense.getId(),
+                expense.getName(),
+                expense.getPurchaseValue(),
+                expense.getTransactionDate(),
+                expense.getInstallmentsCount(),
+                expense.getCategory(),
+                expense.getCreatedAt(),
+                expense.getUpdatedAt())).toList();
+    }
+
+    public List<ExpenseResponseDto> findAll(){
+        return expenseRepository.findAll()
+                .stream()
+                .map(expense -> new ExpenseResponseDto(
+                        expense.getName(),
+                        expense.getPurchaseValue(),
+                        expense.getTransactionDate(),
+                        expense.getInstallmentsCount(),
+                        expense.getCategory())).toList();
     }
 }
