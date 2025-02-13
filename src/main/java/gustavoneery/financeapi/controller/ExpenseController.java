@@ -3,7 +3,7 @@ package gustavoneery.financeapi.controller;
 import gustavoneery.financeapi.dto.ExpenseDto;
 import gustavoneery.financeapi.dto.ExpenseResponseWithIdDto;
 import gustavoneery.financeapi.dto.ExpenseResponseDto;
-import gustavoneery.financeapi.service.ExpenseService;
+import gustavoneery.financeapi.service.interfaces.ExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

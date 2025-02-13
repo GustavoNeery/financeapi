@@ -1,4 +1,4 @@
-package gustavoneery.financeapi.service;
+package gustavoneery.financeapi.service.interfaces;
 
 import gustavoneery.financeapi.dto.ExpenseDto;
 import gustavoneery.financeapi.dto.ExpenseResponseDto;

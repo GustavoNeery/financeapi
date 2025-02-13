@@ -5,6 +5,8 @@ import gustavoneery.financeapi.dto.ExpenseResponseDto;
 import gustavoneery.financeapi.dto.ExpenseResponseWithIdDto;
 import gustavoneery.financeapi.model.Expense;
 import gustavoneery.financeapi.repository.ExpenseRepository;
+import gustavoneery.financeapi.service.interfaces.ExpenseService;
+import gustavoneery.financeapi.service.interfaces.MonthlyExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +15,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class ExpenseServiceImpl implements ExpenseService{
+public class ExpenseServiceImpl implements ExpenseService {
 
     @Autowired
     private ExpenseRepository expenseRepository;
+
+    @Autowired
+    private MonthlyExpenseService monthlyExpenseService;
 
     public UUID save(ExpenseDto expenseDto){
         Expense expense = new Expense();
@@ -27,6 +32,7 @@ public class ExpenseServiceImpl implements ExpenseService{
         expense.setPurchaseValue(expenseDto.purchaseValue());
         expense.setCreatedAt(LocalDateTime.now());
         expenseRepository.save(expense);
+//        monthlyExpenseService.verifyExpense(expense);
 
         return expense.getId();
     }
