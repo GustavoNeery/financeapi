@@ -7,6 +7,7 @@ import gustavoneery.financeapi.repository.MonthlyExpenseRepository;
 import gustavoneery.financeapi.service.interfaces.MonthlyExpenseService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
@@ -16,14 +17,22 @@ public class MonthlyExpenseServiceImpl implements MonthlyExpenseService {
 
     public UUID save(MonthlyExpensesDto monthlyExpensesDto){
         MonthlyExpense monthlyExpense = new MonthlyExpense();
-        monthlyExpense.setMonthYear(monthlyExpensesDto.monthYear());
+//        monthlyExpense.setYearMonth(monthlyExpensesDto.monthYear());
         monthlyExpense.setTotalSpent(monthlyExpensesDto.totalSpent());
 
         monthlyExpenseRepository.save(monthlyExpense);
         return monthlyExpense.getId();
     }
 
-    public void verifyExpense(Expense expense) {
-        monthlyExpenseRepository.findByMonthYear(expense.getTransactionDate());
+    public void verifyMonthlyExpenseByExpense(Expense expense) {
+        String dateFormated = getDateFormated(expense.getTransactionDate());
+//        Optional<MonthlyExpense> monthlyExpense = monthlyExpenseRepository.findByDate();
+//        if(monthlyExpense.isEmpty()) {
+//            save(new MonthlyExpensesDto())
+//        }
+    }
+
+    private String getDateFormated(LocalDate transactionDate) {
+        return String.valueOf(transactionDate.getYear()) + "-" + String.valueOf(transactionDate.getMonth());
     }
 }
