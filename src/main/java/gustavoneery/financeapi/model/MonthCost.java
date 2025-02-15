@@ -2,33 +2,33 @@ package gustavoneery.financeapi.model;
 
 import jakarta.persistence.*;
 
-import java.time.YearMonth;
+import java.time.LocalDate;
 import java.util.UUID;
 
-@Table(name = "monthly_expenses")
+@Table(name = "month_costs")
 @Entity
-public class MonthlyExpense {
+public class MonthCost {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "year_month", nullable = false)
-    private YearMonth yearMonth;
+    @Column(name = "period", nullable = false)
+    private LocalDate period;
 
     @Column(name = "total_spent", nullable = false)
     private Double totalSpent;
 
-    public MonthlyExpense() {
+    public MonthCost() {
     }
 
-    public MonthlyExpense(YearMonth yearMonth, Double totalSpent) {
-        this.yearMonth = yearMonth;
+    public MonthCost(LocalDate period, Double totalSpent) {
+        this.period = period;
         this.totalSpent = totalSpent;
     }
 
-    public void setYearMonth(YearMonth yearMonth) {
-        this.yearMonth = this.yearMonth;
+    public void setPeriod(LocalDate period) {
+        this.period = period;
     }
 
     public void setTotalSpent(Double totalSpent) {
@@ -39,8 +39,8 @@ public class MonthlyExpense {
         return id;
     }
 
-    public YearMonth getYearMonth() {
-        return yearMonth;
+    public LocalDate getPeriod() {
+        return period;
     }
 
     public Double getTotalSpent() {
