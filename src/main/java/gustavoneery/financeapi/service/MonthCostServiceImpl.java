@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,18 +30,27 @@ public class MonthCostServiceImpl implements MonthCostService {
         monthCostRepository.save(monthCost);
     }
 
-    public void update(MonthCost monthCost, Double purchaseValue){
+    public void updateTotalSpent(MonthCost monthCost, Double purchaseValue){
         monthCost.setTotalSpent(monthCost.getTotalSpent() + purchaseValue);
         monthCostRepository.save(monthCost);
     }
 
     public void findMonthCostByExpense(Expense expense) {
         LocalDate periodWithDayOne = expense.getTransactionDate().withDayOfMonth(1);
-        Optional<MonthCost> monthCost = monthCostRepository.findByPeriod(periodWithDayOne);
+        Optional<MonthCost> monthCost = findByPeriod(periodWithDayOne);
         if(monthCost.isEmpty()) {
             this.save(new MonthCostDto(periodWithDayOne, expense.getPurchaseValue()));
         } else {
-            this.update(monthCost.get(), expense.getPurchaseValue());
+            this.updateTotalSpent(monthCost.get(), expense.getPurchaseValue());
         }
+    }
+
+    public List<MonthCost> findAll() {
+        return monthCostRepository.findAll();
+    }
+
+    public Optional<MonthCost> findByPeriod(LocalDate period) {
+        LocalDate periodWithDayOne = period.withDayOfMonth(1);
+        return monthCostRepository.findByPeriod(periodWithDayOne);
     }
 }
