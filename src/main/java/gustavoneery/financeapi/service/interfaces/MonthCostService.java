@@ -6,7 +6,6 @@ import gustavoneery.financeapi.model.MonthCost;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public interface MonthCostService {
     public void save(MonthCostDto monthlyExpensesDto);
@@ -17,5 +16,5 @@ public interface MonthCostService {
 
     public List<MonthCost> findAll();
 
-    public Optional<MonthCost> findByPeriod(LocalDate period);
+    public MonthCost findByPeriod(LocalDate period);
 }

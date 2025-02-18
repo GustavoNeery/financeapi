@@ -1,6 +1,7 @@
 package gustavoneery.financeapi.service;
 
 import gustavoneery.financeapi.dto.MonthCostDto;
+import gustavoneery.financeapi.exceptions.MonthCostNotFoundException;
 import gustavoneery.financeapi.model.Expense;
 import gustavoneery.financeapi.model.MonthCost;
 import gustavoneery.financeapi.repository.MonthCostRepository;
@@ -37,7 +38,7 @@ public class MonthCostServiceImpl implements MonthCostService {
 
     public void findMonthCostByExpense(Expense expense) {
         LocalDate periodWithDayOne = expense.getTransactionDate().withDayOfMonth(1);
-        Optional<MonthCost> monthCost = findByPeriod(periodWithDayOne);
+        Optional<MonthCost> monthCost = monthCostRepository.findByPeriod(periodWithDayOne);
         if(monthCost.isEmpty()) {
             this.save(new MonthCostDto(periodWithDayOne, expense.getPurchaseValue()));
         } else {
@@ -49,8 +50,12 @@ public class MonthCostServiceImpl implements MonthCostService {
         return monthCostRepository.findAll();
     }
 
-    public Optional<MonthCost> findByPeriod(LocalDate period) {
+    public MonthCost findByPeriod(LocalDate period) {
         LocalDate periodWithDayOne = period.withDayOfMonth(1);
-        return monthCostRepository.findByPeriod(periodWithDayOne);
+        Optional<MonthCost> monthCost = monthCostRepository.findByPeriod(periodWithDayOne);
+        if(monthCost.isPresent()){
+            return monthCost.get();
+        }
+        throw new MonthCostNotFoundException("Month cost with this period: "+periodWithDayOne+" not found");
     }
 }
