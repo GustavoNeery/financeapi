@@ -3,10 +3,12 @@ package gustavoneery.financeapi.service;
 import gustavoneery.financeapi.dto.ExpenseDto;
 import gustavoneery.financeapi.dto.ExpenseResponseDto;
 import gustavoneery.financeapi.dto.ExpenseResponseWithIdDto;
+import gustavoneery.financeapi.exceptions.ExpenseNotFoundException;
 import gustavoneery.financeapi.model.Expense;
 import gustavoneery.financeapi.repository.ExpenseRepository;
 import gustavoneery.financeapi.service.interfaces.ExpenseService;
 import gustavoneery.financeapi.service.interfaces.MonthCostService;
+import gustavoneery.financeapi.utils.UpdateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,5 +61,17 @@ public class ExpenseServiceImpl implements ExpenseService {
                         expense.getTransactionDate(),
                         expense.getInstallmentsCount(),
                         expense.getCategory())).toList();
+    }
+
+    public Expense update(UUID id, ExpenseDto expenseDto){
+        Expense expense = expenseRepository.findById(id).orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
+        UpdateUtils.updateNonNullFields(expenseDto, expense);
+
+        return expenseRepository.save(expense );
+    }
+
+    public void delete(UUID id) {
+        expenseRepository.findById(id).orElseThrow();
+        expenseRepository.deleteById(id);
     }
 }
