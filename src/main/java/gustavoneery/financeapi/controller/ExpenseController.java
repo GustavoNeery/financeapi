@@ -3,6 +3,7 @@ package gustavoneery.financeapi.controller;
 import gustavoneery.financeapi.dto.ExpenseDto;
 import gustavoneery.financeapi.dto.ExpenseResponseDto;
 import gustavoneery.financeapi.dto.ExpenseResponseWithIdDto;
+import gustavoneery.financeapi.dto.ExpenseUpdateDto;
 import gustavoneery.financeapi.model.Expense;
 import gustavoneery.financeapi.service.interfaces.ExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class ExpenseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Expense> update(@PathVariable("id") UUID id, @RequestBody ExpenseDto expenseDto){
+    public ResponseEntity<Expense> update(@PathVariable("id") UUID id, @RequestBody ExpenseUpdateDto expenseDto){
         Expense expense = expenseService.update(id, expenseDto);
 
         return new ResponseEntity<>(expense, HttpStatus.OK);

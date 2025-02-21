@@ -3,6 +3,7 @@ package gustavoneery.financeapi.service.interfaces;
 import gustavoneery.financeapi.dto.ExpenseDto;
 import gustavoneery.financeapi.dto.ExpenseResponseDto;
 import gustavoneery.financeapi.dto.ExpenseResponseWithIdDto;
+import gustavoneery.financeapi.dto.ExpenseUpdateDto;
 import gustavoneery.financeapi.model.Expense;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public interface ExpenseService {
 
     public List<ExpenseResponseDto> findAll();
 
-    public Expense update(UUID id, ExpenseDto dto);
+    public Expense update(UUID id, ExpenseUpdateDto dto);
 
     public void delete(UUID id);
 

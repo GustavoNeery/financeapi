@@ -3,12 +3,12 @@ package gustavoneery.financeapi.service;
 import gustavoneery.financeapi.dto.ExpenseDto;
 import gustavoneery.financeapi.dto.ExpenseResponseDto;
 import gustavoneery.financeapi.dto.ExpenseResponseWithIdDto;
+import gustavoneery.financeapi.dto.ExpenseUpdateDto;
 import gustavoneery.financeapi.exceptions.ExpenseNotFoundException;
 import gustavoneery.financeapi.model.Expense;
 import gustavoneery.financeapi.repository.ExpenseRepository;
 import gustavoneery.financeapi.service.interfaces.ExpenseService;
 import gustavoneery.financeapi.service.interfaces.MonthCostService;
-import gustavoneery.financeapi.utils.UpdateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +25,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Autowired
     private MonthCostService monthCostService;
 
+    @Override
     public UUID save(ExpenseDto expenseDto){
         Expense expense = new Expense();
         expense.setCategory(expenseDto.category());
@@ -39,6 +40,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         return expense.getId();
     }
 
+    @Override
     public List<ExpenseResponseWithIdDto> findAllWithId(){
         return expenseRepository.findAll()
                 .stream()
@@ -52,6 +54,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 expense.getUpdatedAt())).toList();
     }
 
+    @Override
     public List<ExpenseResponseDto> findAll(){
         return expenseRepository.findAll()
                 .stream()
@@ -63,15 +66,36 @@ public class ExpenseServiceImpl implements ExpenseService {
                         expense.getCategory())).toList();
     }
 
-    public Expense update(UUID id, ExpenseDto expenseDto){
+    @Override
+    public Expense update(UUID id, ExpenseUpdateDto expenseDto){
         Expense expense = expenseRepository.findById(id).orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
-        UpdateUtils.updateNonNullFields(expenseDto, expense);
+        Expense expenseUpdated = updateNonNullFields(expenseDto, expense);
 
-        return expenseRepository.save(expense );
+        return expenseRepository.save(expenseUpdated);
     }
 
     public void delete(UUID id) {
         expenseRepository.findById(id).orElseThrow();
         expenseRepository.deleteById(id);
+    }
+
+    private Expense updateNonNullFields(ExpenseUpdateDto expenseDto, Expense expense) {
+        if(expenseDto.name() != null) {
+            expense.setName(expenseDto.name());
+        }
+
+        if(expenseDto.purchaseValue() != null) {
+            expense.setPurchaseValue(expenseDto.purchaseValue());
+        }
+
+        if(expenseDto.transactionDate() != null) {
+            expense.setTransactionDate(expenseDto.transactionDate());
+        }
+
+        if(expenseDto.category() != null) {
+            expense.setCategory(expenseDto.category());
+        }
+
+        return expense;
     }
 }
