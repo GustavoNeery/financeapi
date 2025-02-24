@@ -4,6 +4,7 @@ import gustavoneery.financeapi.dto.MonthCostDto;
 import gustavoneery.financeapi.exceptions.MonthCostNotFoundException;
 import gustavoneery.financeapi.model.Expense;
 import gustavoneery.financeapi.model.MonthCost;
+import gustavoneery.financeapi.model.enums.Operation;
 import gustavoneery.financeapi.repository.MonthCostRepository;
 import gustavoneery.financeapi.service.interfaces.MonthCostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class MonthCostServiceImpl implements MonthCostService {
@@ -31,18 +33,22 @@ public class MonthCostServiceImpl implements MonthCostService {
         monthCostRepository.save(monthCost);
     }
 
-    public void updateTotalSpent(MonthCost monthCost, Double purchaseValue){
-        monthCost.setTotalSpent(monthCost.getTotalSpent() + purchaseValue);
+    public void updateTotalSpent(MonthCost monthCost, Double purchaseValue, Operation operation){
+        if(operation.equals(Operation.ADD)){
+            monthCost.setTotalSpent(monthCost.getTotalSpent() + purchaseValue);
+        } else {
+            monthCost.setTotalSpent(monthCost.getTotalSpent() - purchaseValue);
+        }
         monthCostRepository.save(monthCost);
     }
 
-    public void findMonthCostByExpense(Expense expense) {
+    public void findMonthCostByExpense(Expense expense, Operation operation) {
         LocalDate periodWithDayOne = expense.getTransactionDate().withDayOfMonth(1);
         Optional<MonthCost> monthCost = monthCostRepository.findByPeriod(periodWithDayOne);
         if(monthCost.isEmpty()) {
             this.save(new MonthCostDto(periodWithDayOne, expense.getPurchaseValue()));
         } else {
-            this.updateTotalSpent(monthCost.get(), expense.getPurchaseValue());
+            this.updateTotalSpent(monthCost.get(), expense.getPurchaseValue(), operation);
         }
     }
 
@@ -57,5 +63,10 @@ public class MonthCostServiceImpl implements MonthCostService {
             return monthCost.get();
         }
         throw new MonthCostNotFoundException("Month cost with this period: "+periodWithDayOne+" not found");
+    }
+
+    public void delete(UUID id) {
+        MonthCost monthCost = monthCostRepository.findById(id).orElseThrow();
+        monthCostRepository.delete(monthCost);
     }
 }

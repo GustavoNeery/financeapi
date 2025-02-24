@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin("*")
@@ -34,5 +35,11 @@ public class MonthCostController {
         MonthCost monthCost = monthCostService.findByPeriod(period);
 
         return new ResponseEntity<>(monthCost, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") UUID id) {
+        monthCostService.delete(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

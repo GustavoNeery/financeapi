@@ -6,6 +6,7 @@ import gustavoneery.financeapi.dto.ExpenseResponseWithIdDto;
 import gustavoneery.financeapi.dto.ExpenseUpdateDto;
 import gustavoneery.financeapi.exceptions.ExpenseNotFoundException;
 import gustavoneery.financeapi.model.Expense;
+import gustavoneery.financeapi.model.enums.Operation;
 import gustavoneery.financeapi.repository.ExpenseRepository;
 import gustavoneery.financeapi.service.interfaces.ExpenseService;
 import gustavoneery.financeapi.service.interfaces.MonthCostService;
@@ -35,7 +36,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         expense.setPurchaseValue(expenseDto.purchaseValue());
         expense.setCreatedAt(LocalDateTime.now());
         expenseRepository.save(expense);
-        monthCostService.findMonthCostByExpense(expense);
+        monthCostService.findMonthCostByExpense(expense, Operation.ADD);
 
         return expense.getId();
     }
@@ -75,7 +76,8 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     public void delete(UUID id) {
-        expenseRepository.findById(id).orElseThrow();
+        Expense expense = expenseRepository.findById(id).orElseThrow();
+        monthCostService.findMonthCostByExpense(expense, Operation.SUBTRACT);
         expenseRepository.deleteById(id);
     }
 
