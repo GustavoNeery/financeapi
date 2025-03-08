@@ -10,9 +10,9 @@ import gustavoneery.financeapi.model.enums.Operation;
 import gustavoneery.financeapi.repository.ExpenseRepository;
 import gustavoneery.financeapi.service.interfaces.ExpenseService;
 import gustavoneery.financeapi.service.interfaces.MonthCostService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -20,11 +20,14 @@ import java.util.UUID;
 @Service
 public class ExpenseServiceImpl implements ExpenseService {
 
-    @Autowired
     private ExpenseRepository expenseRepository;
 
-    @Autowired
     private MonthCostService monthCostService;
+
+    public ExpenseServiceImpl(ExpenseRepository expenseRepository, MonthCostService monthCostService) {
+        this.expenseRepository = expenseRepository;
+        this.monthCostService = monthCostService;
+    }
 
     @Override
     public UUID save(ExpenseDto expenseDto){
@@ -80,6 +83,19 @@ public class ExpenseServiceImpl implements ExpenseService {
         monthCostService.findMonthCostByExpense(expense, Operation.SUBTRACT);
         expenseRepository.deleteById(id);
     }
+
+    public List<ExpenseResponseWithIdDto> findByTransactionDate(LocalDate transactionDate) {
+        return expenseRepository.findByMonth(transactionDate.getMonth().getValue()).stream().map(expense -> new ExpenseResponseWithIdDto(
+                expense.getId(),
+                expense.getName(),
+                expense.getPurchaseValue(),
+                expense.getTransactionDate(),
+                expense.getInstallmentsCount(),
+                expense.getCategory(),
+                expense.getCreatedAt(),
+                expense.getUpdatedAt())).toList();
+    }
+
 
     private Expense updateNonNullFields(ExpenseUpdateDto expenseDto, Expense expense) {
         if(expenseDto.name() != null) {

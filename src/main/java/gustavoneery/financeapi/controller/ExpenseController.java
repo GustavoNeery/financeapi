@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,6 +42,11 @@ public class ExpenseController {
     @GetMapping("/withId")
     public ResponseEntity<List<ExpenseResponseWithIdDto>> findAllWithId(){
         return new ResponseEntity<>(expenseService.findAllWithId(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{transactionDate}")
+    public ResponseEntity<List<ExpenseResponseWithIdDto>> findByTransactionDate(@PathVariable("transactionDate") LocalDate transactionDate){
+        return new ResponseEntity<>(expenseService.findByTransactionDate(transactionDate), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
