@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -38,10 +39,42 @@ public class ExpenseServiceImpl implements ExpenseService {
         expense.setTransactionDate(expenseDto.transactionDate());
         expense.setPurchaseValue(expenseDto.purchaseValue());
         expense.setCreatedAt(LocalDateTime.now());
+        expense.setFixedExpense(expenseDto.fixedExpense());
         expenseRepository.save(expense);
-        monthCostService.findMonthCostByExpense(expense, Operation.ADD);
+        monthCostService.findByExpense(expense, Operation.ADD);
 
         return expense.getId();
+    }
+
+    @Override
+    public UUID replicateExpense(UUID id){
+        final Optional<Expense> expenseOptional = expenseRepository.findById(id);
+
+        if(expenseOptional.isEmpty()){
+            throw new ExpenseNotFoundException("Expense not found");
+        }
+
+        final Expense expense = expenseOptional.get();
+        final LocalDate newTransactionDate = replicateDateToNextMonth(expense);
+
+        Expense newExpense = new Expense();
+        newExpense.setCategory(expense.getCategory());
+        newExpense.setName(expense.getName());
+        newExpense.setInstallmentsCount(expense.getInstallmentsCount());
+        newExpense.setTransactionDate(newTransactionDate);
+        newExpense.setCreatedAt(expense.getCreatedAt().plusMonths(1));
+        newExpense.setPurchaseValue(expense.getPurchaseValue());
+        newExpense.setFixedExpense(expense.getFixedExpense());
+
+        expenseRepository.save(newExpense);
+        monthCostService.findByExpense(newExpense, Operation.ADD);
+
+        return newExpense.getId();
+
+    }
+
+    private LocalDate replicateDateToNextMonth(Expense expense) {
+        return expense.getTransactionDate().plusMonths(1);
     }
 
     @Override
@@ -78,12 +111,14 @@ public class ExpenseServiceImpl implements ExpenseService {
         return expenseRepository.save(expenseUpdated);
     }
 
+    @Override
     public void delete(UUID id) {
         Expense expense = expenseRepository.findById(id).orElseThrow();
-        monthCostService.findMonthCostByExpense(expense, Operation.SUBTRACT);
+        monthCostService.findByExpense(expense, Operation.SUBTRACT);
         expenseRepository.deleteById(id);
     }
 
+    @Override
     public List<ExpenseResponseWithIdDto> findByTransactionDate(LocalDate transactionDate) {
         return expenseRepository.findByMonth(transactionDate.getMonth().getValue()).stream().map(expense -> new ExpenseResponseWithIdDto(
                 expense.getId(),

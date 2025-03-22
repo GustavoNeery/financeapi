@@ -34,6 +34,12 @@ public class ExpenseController {
         return new ResponseEntity<>(id, HttpStatus.CREATED);
     }
 
+    @PostMapping("/replicate/{id}")
+    public ResponseEntity<UUID> replicateExpense(@PathVariable("id") UUID id){
+        UUID newId = expenseService.replicateExpense(id);
+        return new ResponseEntity<>(newId, HttpStatus.CREATED);
+    }
+
     @GetMapping
     public ResponseEntity<List<ExpenseResponseDto>> findAll(){
         return new ResponseEntity<>(expenseService.findAll(), HttpStatus.OK);

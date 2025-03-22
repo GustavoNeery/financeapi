@@ -10,6 +10,7 @@ public record ExpenseDto(
         int installmentsCount,
         String category,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        boolean fixedExpense
         ) {
 }

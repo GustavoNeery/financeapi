@@ -35,17 +35,29 @@ public class Expense {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Expense(String name, LocalDate transactionDate, int installmentsCount, String category, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    @Column(name = "fixed_expense")
+    private boolean fixedExpense;
+
+    public Expense(String name, LocalDate transactionDate, int installmentsCount, String category, LocalDateTime createdAt, LocalDateTime updatedAt, boolean fixedExpense) {
         this.name = name;
         this.transactionDate = transactionDate;
         this.installmentsCount = installmentsCount;
         this.category = category;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.fixedExpense = fixedExpense;
     }
 
     public Expense(){
 
+    }
+
+    public void setFixedExpense(boolean fixedExpense) {
+        this.fixedExpense = fixedExpense;
+    }
+
+    public boolean getFixedExpense() {
+        return fixedExpense;
     }
 
     public void setName(String name) {

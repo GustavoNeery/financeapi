@@ -25,6 +25,7 @@ public class MonthCostServiceImpl implements MonthCostService {
         this.monthCostRepository = monthCostRepository;
     }
 
+    @Override
     public void save(MonthCostDto monthCostDto){
         MonthCost monthCost = new MonthCost();
         monthCost.setPeriod(monthCostDto.period());
@@ -33,6 +34,7 @@ public class MonthCostServiceImpl implements MonthCostService {
         monthCostRepository.save(monthCost);
     }
 
+    @Override
     public void updateTotalSpent(MonthCost monthCost, Double purchaseValue, Operation operation){
         if(operation.equals(Operation.ADD)){
             monthCost.setTotalSpent(monthCost.getTotalSpent() + purchaseValue);
@@ -42,7 +44,8 @@ public class MonthCostServiceImpl implements MonthCostService {
         monthCostRepository.save(monthCost);
     }
 
-    public void findMonthCostByExpense(Expense expense, Operation operation) {
+    @Override
+    public void findByExpense(Expense expense, Operation operation) {
         LocalDate periodWithDayOne = expense.getTransactionDate().withDayOfMonth(1);
         Optional<MonthCost> monthCost = monthCostRepository.findByPeriod(periodWithDayOne);
         if(monthCost.isEmpty()) {
@@ -52,10 +55,12 @@ public class MonthCostServiceImpl implements MonthCostService {
         }
     }
 
+    @Override
     public List<MonthCost> findAll() {
         return monthCostRepository.findAll();
     }
 
+    @Override
     public MonthCost findByPeriod(LocalDate period) {
         LocalDate periodWithDayOne = period.withDayOfMonth(1);
         Optional<MonthCost> monthCost = monthCostRepository.findByPeriod(periodWithDayOne);
@@ -65,6 +70,7 @@ public class MonthCostServiceImpl implements MonthCostService {
         throw new MonthCostNotFoundException("Month cost with this period: "+periodWithDayOne+" not found");
     }
 
+    @Override
     public void delete(UUID id) {
         MonthCost monthCost = monthCostRepository.findById(id).orElseThrow();
         monthCostRepository.delete(monthCost);

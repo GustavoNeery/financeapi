@@ -11,16 +11,18 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ExpenseService {
-    public UUID save(ExpenseDto expenseDto);
+    UUID save(ExpenseDto expenseDto);
 
-    public List<ExpenseResponseWithIdDto> findAllWithId();
+    List<ExpenseResponseWithIdDto> findAllWithId();
 
-    public List<ExpenseResponseDto> findAll();
+    List<ExpenseResponseDto> findAll();
 
-    public Expense update(UUID id, ExpenseUpdateDto dto);
+    Expense update(UUID id, ExpenseUpdateDto dto);
 
-    public void delete(UUID id);
+    void delete(UUID id);
 
-    public List<ExpenseResponseWithIdDto> findByTransactionDate(LocalDate transactionDate);
+    List<ExpenseResponseWithIdDto> findByTransactionDate(LocalDate transactionDate);
+
+    UUID replicateExpense(UUID id);
 
 }

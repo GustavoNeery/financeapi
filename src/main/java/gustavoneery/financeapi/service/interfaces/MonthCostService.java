@@ -14,7 +14,7 @@ public interface MonthCostService {
 
     public void updateTotalSpent(MonthCost monthCost, Double purchaseValue, Operation operation);
 
-    public void findMonthCostByExpense(Expense expense, Operation operation);
+    public void findByExpense(Expense expense, Operation operation);
 
     public List<MonthCost> findAll();
 
