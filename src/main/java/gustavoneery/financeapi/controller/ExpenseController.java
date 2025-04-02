@@ -1,11 +1,9 @@
 package gustavoneery.financeapi.controller;
 
-import gustavoneery.financeapi.dto.ExpenseDto;
-import gustavoneery.financeapi.dto.ExpenseResponseDto;
-import gustavoneery.financeapi.dto.ExpenseResponseWithIdDto;
-import gustavoneery.financeapi.dto.ExpenseUpdateDto;
+import gustavoneery.financeapi.dto.*;
 import gustavoneery.financeapi.model.Expense;
 import gustavoneery.financeapi.service.interfaces.ExpenseService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +27,14 @@ public class ExpenseController {
     }
 
     @PostMapping
-    public ResponseEntity<UUID> save(@RequestBody ExpenseDto dto){
-        UUID id = expenseService.save(dto);
-        return new ResponseEntity<>(id, HttpStatus.CREATED);
+    public ResponseEntity<Object> save(@RequestBody @Valid ExpenseDto dto){
+        try {
+            UUID id = expenseService.save(dto);
+            return new ResponseEntity<>(id, HttpStatus.CREATED);
+        } catch (Exception e) {
+            var errorDto = ResponseError.patternResponse(e.getMessage());
+            return ResponseEntity.status(errorDto.status()).body(errorDto);
+        }
     }
 
     @PostMapping("/replicate/{id}")
