@@ -7,14 +7,13 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-@Controller
+@RestController
 @CrossOrigin("*")
 @RequestMapping("/expenses")
 public class ExpenseController {
@@ -27,12 +26,12 @@ public class ExpenseController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody @Valid ExpenseDto dto){
+    public ResponseEntity save(@Valid @RequestBody ExpenseDto dto){
         try {
             UUID id = expenseService.save(dto);
             return new ResponseEntity<>(id, HttpStatus.CREATED);
         } catch (Exception e) {
-            var errorDto = ResponseError.patternResponse(e.getMessage());
+            var errorDto = ResponseError.conflict(e.getMessage());
             return ResponseEntity.status(errorDto.status()).body(errorDto);
         }
     }

@@ -14,6 +14,7 @@ public record ExpenseDto(
         @NotBlank
         LocalDate transactionDate,
         int installmentsCount,
+        @NotBlank
         String category,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
