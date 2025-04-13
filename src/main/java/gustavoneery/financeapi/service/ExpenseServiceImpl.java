@@ -1,7 +1,6 @@
 package gustavoneery.financeapi.service;
 
 import gustavoneery.financeapi.dto.ExpenseDto;
-import gustavoneery.financeapi.dto.ExpenseResponseDto;
 import gustavoneery.financeapi.dto.ExpenseResponseWithIdDto;
 import gustavoneery.financeapi.dto.ExpenseUpdateDto;
 import gustavoneery.financeapi.exceptions.ExpenseNotFoundException;
@@ -78,7 +77,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public List<ExpenseResponseWithIdDto> findAllWithId(){
+    public List<ExpenseResponseWithIdDto> findAll(){
         return expenseRepository.findAll()
                 .stream()
                 .map(expense -> new ExpenseResponseWithIdDto(expense.getId(),
@@ -89,18 +88,6 @@ public class ExpenseServiceImpl implements ExpenseService {
                 expense.getCategory(),
                 expense.getCreatedAt(),
                 expense.getUpdatedAt())).toList();
-    }
-
-    @Override
-    public List<ExpenseResponseDto> findAll(){
-        return expenseRepository.findAll()
-                .stream()
-                .map(expense -> new ExpenseResponseDto(
-                        expense.getName(),
-                        expense.getPurchaseValue(),
-                        expense.getTransactionDate(),
-                        expense.getInstallmentsCount(),
-                        expense.getCategory())).toList();
     }
 
     @Override

@@ -43,13 +43,8 @@ public class ExpenseController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ExpenseResponseDto>> findAll(){
+    public ResponseEntity<List<ExpenseResponseWithIdDto>> findAll(){
         return new ResponseEntity<>(expenseService.findAll(), HttpStatus.OK);
-    }
-
-    @GetMapping("/withId")
-    public ResponseEntity<List<ExpenseResponseWithIdDto>> findAllWithId(){
-        return new ResponseEntity<>(expenseService.findAllWithId(), HttpStatus.OK);
     }
 
     @GetMapping("/{transactionDate}")
