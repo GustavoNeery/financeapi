@@ -22,7 +22,7 @@ Atualiza uma despesa existente pelo ID.
 DELETE /expenses/{id}  
 Remove uma despesa pelo ID.
 
-📆 Month Costs API Routes
+📆 Month Costs API Routes  
 📤 GET  
 GET /MonthCosts  
 Retorna o custo total por mês.

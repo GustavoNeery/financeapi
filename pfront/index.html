@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gastos Mensais</title>
+    <style> 
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+        }
+        
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            margin: 10px;
+        }
+
+        .container-botoes {
+            display: flex;
+            justify-content: flex-end; /* Joga os botões para a direita */
+            padding: 10px;
+        }
+
+                /* Estilização geral dos botões */
+        .botao-navegacao {
+            background-color: #0633af; /* Azul escuro */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        /* Efeito ao passar o mouse */
+        .botao-navegacao:hover {
+            background-color: #011652; /* Azul ainda mais escuro */
+        }
+
+        /* Efeito ao clicar */
+        .botao-navegacao:active {
+            transform: scale(0.95);
+        }
+
+        /* Ajuste de espaçamento */
+        #botao-anterior {
+            margin-right: 10px;
+        }
+
+        .btn-secondary {
+            background-color: #007bff;
+        }
+
+        .btn-secondary:hover {
+            background-color: #0056b3;
+        }
+        
+        table {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #ffffff;
+            color: black;
+        }
+        
+        #filtros {
+            margin-bottom: 20px;
+        }
+
+        #dataSelecionada {
+            padding: 8px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gastos Mensais</h1>
+
+    <div id="filtros">
+        <label for="dataSelecionada">Selecione a data:</label>
+        <input type="date" id="dataSelecionada" value="2025-03-01">
+        <button id="botao-buscar">Buscar Informações</button>
+    </div>
+
+
+    
+    <div class="container-botoes">
+        <button id="botao-anterior" class="botao-navegacao">◀ Anterior</button>
+        <button id="botao-proximo" class="botao-navegacao">Próximo ▶</button>
+    </div>
+    <div>
+        <button onclick="window.location.href='cadastro.html'" class="btn-secondary">Cadastrar Nova Compra</button>
+    </div>
+
+    <table id="tabela-dados">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Valor</th>
+                <th>Data</th>
+                <th>Parcelas</th>
+                <th>Categoria</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <p id="totalMes" style="font-weight: bold; margin-top: 20px;"></p>
+
+    <script>
+        document.getElementById("botao-buscar").addEventListener("click", async function() {
+            try {
+                let dataSelecionada = document.getElementById("dataSelecionada").value;
+                
+                if (!dataSelecionada) {
+                    const hoje = new Date();
+                    const ano = hoje.getFullYear();
+                    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+                    const dia = String(hoje.getDate()).padStart(2, "0");            
+                    dataSelecionada = `${ano}-${mes}-${dia}`;
+                }
+    
+                const meses = [
+                    "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+                    "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
+                ];
+    
+                function getNomeMes(numeroMes) {
+                    return meses[numeroMes - 1]; 
+                }
+    
+                const dataFiltrada = dataSelecionada.slice(0, 10); 
+                const getMes = dataFiltrada.slice(5, 7);
+    
+                // Buscar lista de compras
+                const resposta = await fetch(`http://localhost:8080/expenses/${dataSelecionada}`);
+    
+                if (!resposta.ok) {
+                    throw new Error(`Erro na requisição: ${resposta.status}`);
+                }
+    
+                const dados = await resposta.json();
+                const tabelaBody = document.querySelector("#tabela-dados tbody");
+                tabelaBody.innerHTML = ""; // Limpa os dados anteriores
+    
+                dados.forEach(item => {
+                    const linha = document.createElement("tr");
+                    console.log(item);
+                    linha.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>R$ ${item.purchaseValue.toFixed(2)}</td>
+                        <td>${item.transactionDate}</td>
+                        <td>${item.installmentsCount}</td>
+                        <td>${item.category}</td>
+                        <td>
+                            <button class="btn-delete" data-id="${item.id}">🗑️ Deletar</button>
+                        </td>
+                        <td>
+                            <button class="btn-replicate" data-id="${item.id}">Replicar</button>
+                        </td>
+                    `;
+    
+                    tabelaBody.appendChild(linha);
+                });
+    
+                document.querySelectorAll(".btn-delete").forEach(botao => {
+                    botao.addEventListener("click", async function() {
+                        const id = this.getAttribute("data-id");
+                        console.log(id);
+    
+                        if (confirm("Tem certeza que deseja deletar esta compra?")) {
+                            await deletarCompra(id);
+                        }
+                    });
+                });
+
+                document.querySelectorAll(".btn-replicate").forEach(botao => {
+                    botao.addEventListener("click", async function() {
+                        const id = this.getAttribute("data-id");
+                        console.log(id);
+    
+                        if (confirm("Tem certeza que deseja replicar esta compra?")) {
+                            await replicarCompra(id);
+                        }
+                    });
+                });
+    
+                // Buscar total do mês
+                const urlTotal = `http://localhost:8080/monthCosts/${dataFiltrada}`;
+                const respostaTotal = await fetch(urlTotal);
+    
+                if (!respostaTotal.ok) {
+                    throw new Error(`Erro ao buscar total do mês: ${respostaTotal.status}`);
+                }
+    
+                const totalData = await respostaTotal.json();
+                const totalMesElemento = document.getElementById("totalMes");
+    
+                if (totalData.totalSpent !== undefined) {
+                    totalMesElemento.textContent = `Total de ${getNomeMes(getMes)}: R$ ${totalData.totalSpent.toFixed(2)}`;
+                } else {    
+                    totalMesElemento.textContent = "Erro: total não encontrado na resposta.";
+                }
+    
+            } catch (erro) {
+                console.error("Erro ao buscar dados:", erro);
+                alert("Erro ao buscar os dados. Veja o console.");
+            }
+        });
+        
+    
+        async function deletarCompra(id) {
+            try {
+                const resposta = await fetch(`http://localhost:8080/expenses/${id}`, {
+                    method: "DELETE"
+                });
+    
+                if (!resposta.ok) {
+                    throw new Error(`Erro ao deletar: ${resposta.status}`);
+                }
+    
+                alert("Compra deletada com sucesso!");
+    
+                // Recarrega a lista após deletar
+                document.getElementById("botao-buscar").click();
+    
+            } catch (erro) {
+                console.error("Erro ao deletar:", erro);
+                alert("Erro ao deletar. Veja o console.");
+            }
+        }
+
+        async function replicarCompra(id) {
+            try {
+                const resposta = await fetch(`http://localhost:8080/expenses/replicate/${id}`, {
+                    method: "POST"
+                });
+    
+                if (!resposta.ok) {
+                    throw new Error(`Erro ao replicar: ${resposta.status}`);
+                }
+    
+                alert("Compra replicada com sucesso!");
+    
+                document.getElementById("botao-buscar").click();
+    
+            } catch (erro) {
+                console.error("Erro ao replicar:", erro);
+                alert("Erro ao replicar. Veja o console.");
+            }
+        }
+
+        async function ajustarMes(direcao) {
+            const dataSelecionada = document.getElementById("dataSelecionada");
+            let dataAtual = new Date(dataSelecionada.value);
+            
+            // Ajusta o mês de acordo com a direção
+            if (direcao === 'anterior') {
+                dataAtual.setMonth(dataAtual.getMonth() - 1);
+            } else if (direcao === 'proximo') {
+                dataAtual.setMonth(dataAtual.getMonth() + 1);
+            }
+
+            // Atualiza o campo de data com o novo mês
+            const ano = dataAtual.getFullYear();
+            const mes = String(dataAtual.getMonth() + 1).padStart(2, "0");
+            const dia = String(dataAtual.getDate()).padStart(2, "0");
+            dataSelecionada.value = `${ano}-${mes}-${dia}`;
+            
+            // Chama a função de busca com a nova data
+            document.getElementById("botao-buscar").click();
+    }
+
+    // Adicionando eventos para os botões de navegação
+    document.getElementById("botao-anterior").addEventListener("click", function() {
+        ajustarMes('anterior');
+    });
+
+    document.getElementById("botao-proximo").addEventListener("click", function() {
+        ajustarMes('proximo');
+    });
+    </script>    
+</body>
+</html>
