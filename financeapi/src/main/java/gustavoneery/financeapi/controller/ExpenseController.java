@@ -62,7 +62,6 @@ public class ExpenseController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") UUID id){
         expenseService.delete(id);
-
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

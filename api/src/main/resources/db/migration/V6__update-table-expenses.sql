@@ -1,1 +1,0 @@
-ALTER TABLE expenses ADD COLUMN fixed_expense BOOLEAN DEFAULT false;
