@@ -1,5 +1,6 @@
 package gustavoneery.financeapi.controller;
 
+import gustavoneery.financeapi.dto.ResponseError;
 import gustavoneery.financeapi.model.MonthCost;
 import gustavoneery.financeapi.service.interfaces.MonthCostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +32,14 @@ public class MonthCostController {
     }
 
     @GetMapping("/{period}")
-    public ResponseEntity<MonthCost> findByPeriod(@PathVariable("period") LocalDate period) {
-        MonthCost monthCost = monthCostService.findByPeriod(period);
-
-        return new ResponseEntity<>(monthCost, HttpStatus.OK);
+    public ResponseEntity<Object> findByPeriod(@PathVariable("period") LocalDate period) {
+        try {
+            MonthCost monthCost = monthCostService.findByPeriod(period);
+            return new ResponseEntity<>(monthCost, HttpStatus.OK);
+        } catch (Exception e) {
+            var errorDto = ResponseError.notFound(e.getMessage());
+            return ResponseEntity.status(errorDto.status()).body(errorDto);
+        }
     }
 
     @DeleteMapping("/{id}")

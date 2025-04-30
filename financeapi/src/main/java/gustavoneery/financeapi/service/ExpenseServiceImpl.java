@@ -1,7 +1,7 @@
 package gustavoneery.financeapi.service;
 
 import gustavoneery.financeapi.dto.ExpenseDto;
-import gustavoneery.financeapi.dto.ExpenseResponseWithIdDto;
+import gustavoneery.financeapi.dto.ExpenseResponseDto;
 import gustavoneery.financeapi.dto.ExpenseUpdateDto;
 import gustavoneery.financeapi.exceptions.ExpenseNotFoundException;
 import gustavoneery.financeapi.model.Expense;
@@ -21,7 +21,6 @@ import java.util.UUID;
 public class ExpenseServiceImpl implements ExpenseService {
 
     private ExpenseRepository expenseRepository;
-
     private MonthCostService monthCostService;
 
     public ExpenseServiceImpl(ExpenseRepository expenseRepository, MonthCostService monthCostService) {
@@ -31,14 +30,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public UUID save(ExpenseDto expenseDto){
-        Expense expense = new Expense();
-        expense.setCategory(expenseDto.category());
-        expense.setName(expenseDto.name());
-        expense.setInstallmentsCount(expenseDto.installmentsCount());
-        expense.setTransactionDate(expenseDto.transactionDate());
-        expense.setPurchaseValue(expenseDto.purchaseValue());
-        expense.setCreatedAt(LocalDateTime.now());
-        expense.setFixedExpense(expenseDto.fixedExpense());
+        Expense expense = new Expense(expenseDto);
         expenseRepository.save(expense);
         monthCostService.findByExpense(expense, Operation.ADD);
 
@@ -55,21 +47,19 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         final Expense expense = expenseOptional.get();
         final LocalDate newTransactionDate = replicateDateToNextMonth(expense);
-
-        Expense newExpense = new Expense();
-        newExpense.setCategory(expense.getCategory());
-        newExpense.setName(expense.getName());
-        newExpense.setInstallmentsCount(expense.getInstallmentsCount());
-        newExpense.setTransactionDate(newTransactionDate);
-        newExpense.setCreatedAt(expense.getCreatedAt().plusMonths(1));
-        newExpense.setPurchaseValue(expense.getPurchaseValue());
-        newExpense.setFixedExpense(expense.getFixedExpense());
-
+        Expense newExpense = new Expense(
+                expense.getName(),
+                newTransactionDate,
+                expense.getInstallmentsCount(),
+                expense.getCategory(),
+                expense.getCreatedAt().plusMonths(1),
+                LocalDateTime.now(),
+                expense.getFixedExpense()
+        );
         expenseRepository.save(newExpense);
         monthCostService.findByExpense(newExpense, Operation.ADD);
 
         return newExpense.getId();
-
     }
 
     private LocalDate replicateDateToNextMonth(Expense expense) {
@@ -77,17 +67,11 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public List<ExpenseResponseWithIdDto> findAll(){
+    public List<ExpenseResponseDto> findAll(){
         return expenseRepository.findAll()
                 .stream()
-                .map(expense -> new ExpenseResponseWithIdDto(expense.getId(),
-                expense.getName(),
-                expense.getPurchaseValue(),
-                expense.getTransactionDate(),
-                expense.getInstallmentsCount(),
-                expense.getCategory(),
-                expense.getCreatedAt(),
-                expense.getUpdatedAt())).toList();
+                .map(ExpenseResponseDto::new)
+                .toList();
     }
 
     @Override
@@ -106,16 +90,14 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public List<ExpenseResponseWithIdDto> findByTransactionDate(LocalDate transactionDate) {
-        return expenseRepository.findByMonth(transactionDate.getMonth().getValue()).stream().map(expense -> new ExpenseResponseWithIdDto(
-                expense.getId(),
-                expense.getName(),
-                expense.getPurchaseValue(),
-                expense.getTransactionDate(),
-                expense.getInstallmentsCount(),
-                expense.getCategory(),
-                expense.getCreatedAt(),
-                expense.getUpdatedAt())).toList();
+    public List<ExpenseResponseDto> findByTransactionDate(LocalDate transactionDate) {
+        List<Expense> expenses = expenseRepository.findByMonth(transactionDate.getMonth().getValue(), transactionDate.getYear());
+
+        if(expenses.isEmpty()) {
+            throw new ExpenseNotFoundException("Expenses with transaction date: "+ transactionDate + " not found");
+        }
+
+        return expenses.stream().map(ExpenseResponseDto::new).toList();
     }
 
 

@@ -12,6 +12,6 @@ import java.util.UUID;
 @Repository
 public interface ExpenseRepository extends JpaRepository<Expense, UUID> {
 
-    @Query(value = "SELECT * FROM expenses e WHERE EXTRACT(MONTH FROM e.transaction_date) = :month", nativeQuery = true)
-    List<Expense> findByMonth(@Param("month") int month);
+    @Query(value = "SELECT * FROM expenses e WHERE EXTRACT(MONTH FROM e.transaction_date) = :month AND EXTRACT(YEAR FROM e.transaction_date) = :year", nativeQuery = true)
+    List<Expense> findByMonth(@Param("month") int month, @Param("year") int year);
 }

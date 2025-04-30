@@ -1,5 +1,6 @@
 package gustavoneery.financeapi.model;
 
+import gustavoneery.financeapi.dto.ExpenseDto;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -46,6 +47,10 @@ public class Expense {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.fixedExpense = fixedExpense;
+    }
+
+    public Expense(ExpenseDto expenseDto){
+        this(expenseDto.name(), expenseDto.transactionDate(), expenseDto.installmentsCount(), expenseDto.category(), expenseDto.createdAt(), expenseDto.updatedAt(), expenseDto.fixedExpense());
     }
 
     public Expense(){

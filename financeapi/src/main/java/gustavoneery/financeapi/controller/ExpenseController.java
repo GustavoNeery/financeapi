@@ -31,7 +31,7 @@ public class ExpenseController {
             UUID id = expenseService.save(dto);
             return new ResponseEntity<>(id, HttpStatus.CREATED);
         } catch (Exception e) {
-            var errorDto = ResponseError.conflict(e.getMessage());
+            var errorDto = ResponseError.patternResponse(e.getMessage());
             return ResponseEntity.status(errorDto.status()).body(errorDto);
         }
     }
@@ -43,13 +43,19 @@ public class ExpenseController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ExpenseResponseWithIdDto>> findAll(){
+    public ResponseEntity<List<ExpenseResponseDto>> findAll(){
         return new ResponseEntity<>(expenseService.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{transactionDate}")
-    public ResponseEntity<List<ExpenseResponseWithIdDto>> findByTransactionDate(@PathVariable("transactionDate") LocalDate transactionDate){
-        return new ResponseEntity<>(expenseService.findByTransactionDate(transactionDate), HttpStatus.OK);
+    public ResponseEntity<Object> findByTransactionDate(@PathVariable("transactionDate") LocalDate transactionDate){
+        try {
+            List<ExpenseResponseDto> expenses = expenseService.findByTransactionDate(transactionDate);
+            return new ResponseEntity<>(expenses, HttpStatus.OK);
+        } catch (Exception e) {
+            var errorDto = ResponseError.notFound(e.getMessage());
+            return ResponseEntity.status(errorDto.status()).body(errorDto);
+        }
     }
 
     @PutMapping("/{id}")

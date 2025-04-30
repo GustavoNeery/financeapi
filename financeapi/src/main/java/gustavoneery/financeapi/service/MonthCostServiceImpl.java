@@ -64,9 +64,11 @@ public class MonthCostServiceImpl implements MonthCostService {
     public MonthCost findByPeriod(LocalDate period) {
         LocalDate periodWithDayOne = period.withDayOfMonth(1);
         Optional<MonthCost> monthCost = monthCostRepository.findByPeriod(periodWithDayOne);
+
         if(monthCost.isPresent()){
             return monthCost.get();
         }
+
         throw new MonthCostNotFoundException("Month cost with this period: "+periodWithDayOne+" not found");
     }
 
