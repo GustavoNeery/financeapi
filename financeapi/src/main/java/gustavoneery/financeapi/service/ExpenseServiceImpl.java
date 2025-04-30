@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -37,25 +36,23 @@ public class ExpenseServiceImpl implements ExpenseService {
         return expense.getId();
     }
 
+    private Expense findById(UUID id) {
+        return expenseRepository.findById(id).orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
+    }
+
     @Override
     public UUID replicateExpense(UUID id){
-        final Optional<Expense> expenseOptional = expenseRepository.findById(id);
-
-        if(expenseOptional.isEmpty()){
-            throw new ExpenseNotFoundException("Expense not found");
-        }
-
-        final Expense expense = expenseOptional.get();
-        final LocalDate newTransactionDate = replicateDateToNextMonth(expense);
+        final Expense expense = findById(id);
         Expense newExpense = new Expense(
                 expense.getName(),
-                newTransactionDate,
+                replicateDateToNextMonth(expense),
                 expense.getInstallmentsCount(),
                 expense.getCategory(),
                 expense.getCreatedAt().plusMonths(1),
                 LocalDateTime.now(),
                 expense.getFixedExpense()
         );
+
         expenseRepository.save(newExpense);
         monthCostService.findByExpense(newExpense, Operation.ADD);
 
@@ -76,7 +73,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public Expense update(UUID id, ExpenseUpdateDto expenseDto){
-        Expense expense = expenseRepository.findById(id).orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
+        Expense expense = findById(id);
         Expense expenseUpdated = updateNonNullFields(expenseDto, expense);
 
         return expenseRepository.save(expenseUpdated);
@@ -84,7 +81,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
     @Override
     public void delete(UUID id) {
-        Expense expense = expenseRepository.findById(id).orElseThrow();
+        Expense expense = findById(id);
         monthCostService.findByExpense(expense, Operation.SUBTRACT);
         expenseRepository.deleteById(id);
     }

@@ -37,11 +37,15 @@ public class MonthCostServiceImpl implements MonthCostService {
     @Override
     public void updateTotalSpent(MonthCost monthCost, Double purchaseValue, Operation operation){
         if(operation.equals(Operation.ADD)){
-            monthCost.setTotalSpent(monthCost.getTotalSpent() + purchaseValue);
+            updateValueTotal(monthCost, purchaseValue);
         } else {
-            monthCost.setTotalSpent(monthCost.getTotalSpent() - purchaseValue);
+            updateValueTotal(monthCost, -purchaseValue);
         }
         monthCostRepository.save(monthCost);
+    }
+
+    private void updateValueTotal(MonthCost monthCost, Double purchaseValue) {
+        monthCost.setTotalSpent(monthCost.getTotalSpent() + purchaseValue);
     }
 
     @Override
