@@ -43,15 +43,15 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     public UUID replicateExpense(UUID id){
         final Expense expense = findById(id);
-        Expense newExpense = new Expense(
-                expense.getName(),
-                replicateDateToNextMonth(expense),
-                expense.getInstallmentsCount(),
-                expense.getCategory(),
-                expense.getCreatedAt().plusMonths(1),
-                LocalDateTime.now(),
-                expense.getFixedExpense()
-        );
+        Expense newExpense = new Expense();
+        newExpense.setName(expense.getName());
+        newExpense.setTransactionDate(replicateDateToNextMonth(expense));
+        newExpense.setInstallmentsCount(expense.getInstallmentsCount());
+        newExpense.setCategory(expense.getCategory());
+        newExpense.setCreatedAt(expense.getCreatedAt().plusMonths(1));
+        newExpense.setUpdatedAt(LocalDateTime.now());
+        newExpense.setFixedExpense(expense.getFixedExpense());
+        newExpense.setPurchaseValue(expense.getPurchaseValue());
 
         expenseRepository.save(newExpense);
         monthCostService.findByExpense(newExpense, Operation.ADD);
