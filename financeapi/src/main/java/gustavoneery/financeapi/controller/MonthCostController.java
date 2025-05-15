@@ -34,7 +34,7 @@ public class MonthCostController {
     @GetMapping("/{period}")
     public ResponseEntity<Object> findByPeriod(@PathVariable("period") LocalDate period) {
         try {
-            MonthCost monthCost = monthCostService.findByPeriod(period);
+            MonthCost monthCost = monthCostService.findByPeriod(period).orElseThrow();
             return new ResponseEntity<>(monthCost, HttpStatus.OK);
         } catch (Exception e) {
             var errorDto = ResponseError.notFound(e.getMessage());

@@ -1,10 +1,7 @@
 package gustavoneery.financeapi.service;
 
 import gustavoneery.financeapi.dto.MonthCostDto;
-import gustavoneery.financeapi.exceptions.MonthCostNotFoundException;
-import gustavoneery.financeapi.model.Expense;
 import gustavoneery.financeapi.model.MonthCost;
-import gustavoneery.financeapi.model.enums.Operation;
 import gustavoneery.financeapi.repository.MonthCostRepository;
 import gustavoneery.financeapi.service.interfaces.MonthCostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,45 +32,19 @@ public class MonthCostServiceImpl implements MonthCostService {
     }
 
     @Override
-    public void updateTotalSpent(MonthCost monthCost, Double purchaseValue, Operation operation){
-        if(operation.equals(Operation.ADD)){
-            updateValueTotal(monthCost, purchaseValue);
-        } else {
-            updateValueTotal(monthCost, -purchaseValue);
-        }
-        monthCostRepository.save(monthCost);
-    }
-
-    private void updateValueTotal(MonthCost monthCost, Double purchaseValue) {
-        monthCost.setTotalSpent(monthCost.getTotalSpent() + purchaseValue);
+    public Optional<MonthCost> findByPeriod(LocalDate period) {
+        return monthCostRepository.findByPeriod(period);
     }
 
     @Override
-    public void findByExpense(Expense expense, Operation operation) {
-        LocalDate periodWithDayOne = expense.getTransactionDate().withDayOfMonth(1);
-        Optional<MonthCost> monthCost = monthCostRepository.findByPeriod(periodWithDayOne);
-        if(monthCost.isEmpty()) {
-            this.save(new MonthCostDto(periodWithDayOne, expense.getPurchaseValue()));
-        } else {
-            this.updateTotalSpent(monthCost.get(), expense.getPurchaseValue(), operation);
-        }
+    public void updateTotalSpent(MonthCost monthCost, Double purchaseValue){
+        monthCost.setTotalSpent(monthCost.getTotalSpent() + purchaseValue);
+        monthCostRepository.save(monthCost);
     }
 
     @Override
     public List<MonthCost> findAll() {
         return monthCostRepository.findAll();
-    }
-
-    @Override
-    public MonthCost findByPeriod(LocalDate period) {
-        LocalDate periodWithDayOne = period.withDayOfMonth(1);
-        Optional<MonthCost> monthCost = monthCostRepository.findByPeriod(periodWithDayOne);
-
-        if(monthCost.isPresent()){
-            return monthCost.get();
-        }
-
-        throw new MonthCostNotFoundException("Month cost with this period: "+periodWithDayOne+" not found");
     }
 
     @Override

@@ -16,6 +16,8 @@ public interface ExpenseService {
 
     Expense update(UUID id, ExpenseUpdateDto dto);
 
+    Expense findById(UUID id);
+
     void delete(UUID id);
 
     List<ExpenseResponseDto> findByTransactionDate(LocalDate transactionDate);

@@ -1,4 +1,4 @@
-  CREATE TABLE expenses (
+  CREATE TABLE IF NOT EXISTS expenses (
       id UUID not null primary key,
       name varchar not null,
       transaction_date date not null,

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -56,7 +57,7 @@ public class Expense {
     }
 
     public Expense(ExpenseDto expenseDto){
-        this(expenseDto.name(), expenseDto.transactionDate(), expenseDto.purchaseValue(), expenseDto.installmentsCount(), expenseDto.category(), expenseDto.createdAt(), expenseDto.updatedAt(), expenseDto.fixedExpense());
+        this(expenseDto.name(), expenseDto.transactionDate().withDayOfMonth(1), expenseDto.purchaseValue(), expenseDto.installmentsCount(), expenseDto.category(), expenseDto.createdAt(), expenseDto.updatedAt(), expenseDto.fixedExpense());
     }
 
     public void setFixedExpense(boolean fixedExpense) {
@@ -125,5 +126,36 @@ public class Expense {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Expense{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", transactionDate=" + transactionDate +
+                ", purchaseValue=" + purchaseValue +
+                ", installmentsCount=" + installmentsCount +
+                ", category='" + category + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", fixedExpense=" + fixedExpense +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Expense)) return false;
+        Expense expense = (Expense) o;
+        return Double.compare(expense.purchaseValue, purchaseValue) == 0 &&
+                Objects.equals(name, expense.name) &&
+                Objects.equals(transactionDate, expense.transactionDate) &&
+                Objects.equals(category, expense.category);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, transactionDate, purchaseValue, category);
     }
 }

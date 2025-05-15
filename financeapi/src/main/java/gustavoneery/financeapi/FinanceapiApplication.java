@@ -8,10 +8,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class FinanceapiApplication {
 
 	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.configure().load();
-
-		dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
+		if (!isTestEnvironment()) {
+			Dotenv dotenv = Dotenv.configure().load();
+			dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
+		}
 		SpringApplication.run(FinanceapiApplication.class, args);
+	}
+
+	private static boolean isTestEnvironment() {
+		return System.getProperty("TEST_ENV") != null;
 	}
 
 }

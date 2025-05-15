@@ -3,9 +3,10 @@ package gustavoneery.financeapi.service;
 import gustavoneery.financeapi.dto.ExpenseDto;
 import gustavoneery.financeapi.dto.ExpenseResponseDto;
 import gustavoneery.financeapi.dto.ExpenseUpdateDto;
+import gustavoneery.financeapi.dto.MonthCostDto;
 import gustavoneery.financeapi.exceptions.ExpenseNotFoundException;
 import gustavoneery.financeapi.model.Expense;
-import gustavoneery.financeapi.model.enums.Operation;
+import gustavoneery.financeapi.model.MonthCost;
 import gustavoneery.financeapi.repository.ExpenseRepository;
 import gustavoneery.financeapi.service.interfaces.ExpenseService;
 import gustavoneery.financeapi.service.interfaces.MonthCostService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -31,12 +33,23 @@ public class ExpenseServiceImpl implements ExpenseService {
     public UUID save(ExpenseDto expenseDto){
         Expense expense = new Expense(expenseDto);
         expenseRepository.save(expense);
-        monthCostService.findByExpense(expense, Operation.ADD);
+        this.checkIfCreateOrUpdateMonthCost(expense);
 
         return expense.getId();
     }
 
-    private Expense findById(UUID id) {
+    private void checkIfCreateOrUpdateMonthCost(Expense expense) {
+        Optional<MonthCost> monthCostOptional = monthCostService.findByPeriod(expense.getTransactionDate());
+
+        if(monthCostOptional.isPresent()) {
+            monthCostService.updateTotalSpent(monthCostOptional.get(), expense.getPurchaseValue());
+        } else {
+            monthCostService.save(new MonthCostDto(expense.getTransactionDate(), expense.getPurchaseValue()));
+        }
+    }
+
+    @Override
+    public Expense findById(UUID id) {
         return expenseRepository.findById(id).orElseThrow(() -> new ExpenseNotFoundException("Expense not found"));
     }
 
@@ -44,6 +57,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     public UUID replicateExpense(UUID id){
         final Expense expense = findById(id);
         Expense newExpense = new Expense();
+
         newExpense.setName(expense.getName());
         newExpense.setTransactionDate(replicateDateToNextMonth(expense));
         newExpense.setInstallmentsCount(expense.getInstallmentsCount());
@@ -54,7 +68,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         newExpense.setPurchaseValue(expense.getPurchaseValue());
 
         expenseRepository.save(newExpense);
-        monthCostService.findByExpense(newExpense, Operation.ADD);
+        this.checkIfCreateOrUpdateMonthCost(newExpense);
 
         return newExpense.getId();
     }
@@ -82,7 +96,10 @@ public class ExpenseServiceImpl implements ExpenseService {
     @Override
     public void delete(UUID id) {
         Expense expense = findById(id);
-        monthCostService.findByExpense(expense, Operation.SUBTRACT);
+
+        expense.setPurchaseValue(-expense.getPurchaseValue());
+        this.checkIfCreateOrUpdateMonthCost(expense);
+
         expenseRepository.deleteById(id);
     }
 
